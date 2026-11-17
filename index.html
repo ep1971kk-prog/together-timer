@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>같이 뽀모</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+/* VOICE: 다정하고 말랑한 공부 친구, 귀엽지만 정돈된 도구
+IDEA: 책상 위 토마토 주방 타이머 + 친구와 나눠 쓰는 스티커 출석판
+PICTURE: 토마토 링이 줄어드는 큰 타이머 안에 오늘의 기분 캐릭터가 앉아 있음
+COLOUR and TYPE: 토마토 #e8483b 띠, 복숭아빛 바탕, 잎사귀 초록 포인트 / Jua + Gowun Dodum
+LAYOUT: 빨간 띠 제목 → 왼쪽 큰 타이머 카드, 오른쪽 친구 현황·오늘 기록 → 아래 주간 스티커판 */
+:root{color-scheme:light dark;--bg:light-dark(#fff4ef,#1d1314);--card:light-dark(#fff,#2a1c1e);--ink:light-dark(#3a2326,#f8e9e6);--mute:light-dark(#8a6d6f,#c4a9aa);--tom:#e8483b;--leaf:light-dark(#2f8f57,#5cc487);--line:light-dark(#f3d9d2,#3d2a2c);--soft:light-dark(#ffe6de,#3d2629)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Gowun Dodum",system-ui,sans-serif;overflow-x:clip}
+h1,h2,.jua{font-family:Jua,"Gowun Dodum",sans-serif;font-weight:400}
+h2{font-size:22px;margin:0 0 12px;line-height:1.2}
+.top{background:var(--tom);color:#fff;padding:24px max(5vw,16px) 76px}
+.top>div{max-width:1240px;margin:0 auto}
+.top h1{margin:0;font-size:clamp(34px,6vw,50px);line-height:1.05}
+.top p{margin:6px 0 0;opacity:.95}
+.wrap{max-width:1240px;margin:-56px auto 0;padding:0 max(5vw,16px) 48px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:start}
+.card{background:var(--card);border-radius:28px;padding:22px;box-shadow:0 6px 0 var(--line)}
+.timer{grid-row:span 2;text-align:center}
+.side{display:grid;gap:20px}
+.week{grid-column:1/-1}
+.btn{min-height:44px;border-radius:999px;border:2px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:16px;padding:8px 16px;cursor:pointer}
+.btn[aria-pressed=true]{background:var(--soft);border-color:var(--tom);color:var(--tom)}
+.btn:focus-visible,.mood:focus-visible{outline:3px solid var(--leaf);outline-offset:2px}
+.big{background:var(--tom);border-color:var(--tom);color:#fff;font-family:Jua,sans-serif;font-size:22px;padding:8px 38px}
+.row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.ringbox{width:min(100%,330px);margin:14px auto 0;aspect-ratio:1}
+.ringbox svg{width:100%;height:100%;display:block}
+.track{fill:none;stroke:var(--soft);stroke-width:18}
+#prog{fill:none;stroke:var(--tom);stroke-width:18;stroke-linecap:round;transform:rotate(-90deg);transform-origin:150px 150px;transition:stroke-dashoffset .25s linear}
+.brk #prog{stroke:var(--leaf)}
+.time{font-size:clamp(52px,9vw,72px);line-height:1;margin:4px 0 2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+#phase{color:var(--mute);margin:0 0 16px}
+.ctl{margin-bottom:14px}
+.presets{color:var(--mute);font-size:14px;align-items:center}
+.presets .btn{font-size:14px;padding:6px 14px}
+.timer h2{margin-top:24px}
+.moods{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.mood{border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:20px;padding:8px 2px 10px;cursor:pointer;font:inherit;display:grid;justify-items:center;gap:2px}
+.mood svg{width:56px;height:56px}
+.mood b{font-family:Jua,sans-serif;font-weight:400;font-size:15px}
+.mood small{font-size:13px;color:var(--mute)}
+.mood[aria-pressed=true]{border-color:var(--tom);background:var(--soft)}
+.bob{animation:bob 1.6s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes bob{50%{transform:translateY(-4px) scale(1.02,.98)}}
+@media (prefers-reduced-motion:reduce){.bob{animation:none}#prog{transition:none}}
+ul,ol{list-style:none;margin:0;padding:0}
+.fr{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px dashed var(--line)}
+.fr:first-child{border-top:0}
+.av{width:52px;height:52px;flex:none;border-radius:18px;background:var(--soft);display:grid;place-items:center}
+.av svg{width:44px;height:44px}
+.fr .who{flex:1}
+.fr b{font-family:Jua,sans-serif;font-weight:400;font-size:18px}
+.fr small{color:var(--mute);font-size:13px;margin-inline-start:6px}
+.st{display:block;font-size:14px;color:var(--mute)}
+.live .st{color:var(--tom);font-weight:700}
+.cnt{display:flex;gap:2px;align-items:center;flex-wrap:wrap;justify-content:flex-end;max-width:120px;font-size:13px;color:var(--mute)}
+.cnt svg{width:16px;height:16px}
+.log li{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px dashed var(--line)}
+.log li:first-child{border-top:0}
+.log time{font-variant-numeric:tabular-nums;color:var(--mute);width:3.2em;flex:none;font-size:14px}
+.log svg{width:30px;height:30px;flex:none}
+.log span{flex:1}
+.log em{font-style:normal;color:var(--tom);white-space:nowrap}
+.empty{color:var(--mute);font-size:15px;padding:6px 0}
+.note{color:var(--mute);font-size:13px;margin:10px 0 0}
+.note:empty{display:none}
+.wk{display:grid;grid-template-columns:130px repeat(7,minmax(0,1fr)) 96px;gap:6px;align-items:end}
+.wk .h{font-size:13px;color:var(--mute);text-align:center;line-height:1.2}
+.wk .h.today{color:var(--tom);font-weight:700}
+.wk .nm{display:flex;align-items:center;gap:6px;font-family:Jua,sans-serif;font-size:16px;align-self:center}
+.wk .nm svg{width:30px;height:30px;flex:none}
+.cell{height:86px;background:var(--soft);border-radius:12px;position:relative;overflow:hidden}
+.cell i{position:absolute;inset:auto 0 0 0;background:var(--tom);border-radius:12px 12px 0 0}
+.cell span{position:absolute;inset:4px 0 auto;text-align:center;font-size:12px;color:var(--ink);font-variant-numeric:tabular-nums}
+.tot{text-align:right;font-size:14px;align-self:center;white-space:nowrap}
+.tot b{display:block;font-family:Jua,sans-serif;font-weight:400;font-size:20px;color:var(--tom)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,140%);background:var(--ink);color:var(--bg);padding:12px 22px;border-radius:999px;font-family:Jua,sans-serif;font-size:18px;transition:transform .3s,opacity .3s;opacity:0;z-index:5;max-width:90vw;text-align:center}
+.toast.on{transform:translate(-50%,0);opacity:1}
+@media(max-width:860px){.wrap{grid-template-columns:minmax(0,1fr)}.timer{grid-row:auto}}
+@media(max-width:600px){.card{padding:18px 14px;border-radius:22px}.mood svg{width:42px;height:42px}.mood small{font-size:12px}
+.wk{grid-template-columns:64px repeat(7,minmax(0,1fr));gap:4px}.wk .nm{flex-direction:column;gap:0;font-size:12px;text-align:center}.wk .nm span{max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tot{grid-column:2/-1;text-align:left;margin-bottom:8px}.tot b{display:inline;margin-inline-end:6px}.wk .hd-tot{display:none}.cell{height:64px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="tom" viewBox="0 0 20 20"><circle cx="10" cy="11.5" r="7.5" fill="#e8483b"/><circle cx="7.5" cy="9" r="2" fill="#fff" opacity=".45"/><path d="M10 4.5l-3 -1.5 1.8 2.6-3 .6 3.2 .9M10 4.5l3-1.5-1.8 2.6 3 .6-3.2.9M10 5V2" stroke="#2f8f57" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol></svg>
+
+<header class="top"><div>
+  <h1>같이 뽀모</h1>
+  <p>친구랑 토마토 하나씩 모으며 공부해요. 오늘 기분에 맞는 친구를 골라 함께 집중!</p>
+</div></header>
+
+<main class="wrap">
+  <section class="card timer" id="timerCard">
+    <div class="row" role="group" aria-label="타이머 종류">
+      <button class="btn" id="mFocus" aria-pressed="true">집중</button>
+      <button class="btn" id="mBreak" aria-pressed="false">휴식</button>
+    </div>
+    <div class="ringbox">
+      <svg viewBox="0 0 300 300" role="img" aria-label="남은 시간 링">
+        <circle class="track" cx="150" cy="150" r="130"/>
+        <circle id="prog" cx="150" cy="150" r="130"/>
+        <g transform="translate(72 68) scale(1.3)"><g id="hero"></g></g>
+      </svg>
+    </div>
+    <div class="time jua" id="time" aria-live="off">25:00</div>
+    <p id="phase">준비됐으면 시작을 눌러요</p>
+    <div class="row ctl">
+      <button class="btn big" id="go">시작</button>
+      <button class="btn" id="reset">처음부터</button>
+      <button class="btn" id="skip">건너뛰기</button>
+    </div>
+    <div class="row presets" role="group" aria-label="집중·휴식 시간">
+      <span>집중·휴식(분)</span>
+      <button class="btn" data-p="0">25 · 5</button>
+      <button class="btn" data-p="1">50 · 10</button>
+      <button class="btn" data-p="2">15 · 3</button>
+    </div>
+    <h2>오늘 기분은 어때요?</h2>
+    <div class="moods" id="moods"></div>
+  </section>
+
+  <div class="side">
+    <section class="card">
+      <h2>공부 친구들</h2>
+      <ul id="friends"></ul>
+      <p class="note" id="net"></p>
+    </section>
+    <section class="card">
+      <h2>오늘 모은 토마토</h2>
+      <ol class="log" id="today"></ol>
+    </section>
+  </div>
+
+  <section class="card week">
+    <h2>이번 주 기록 (최근 7일)</h2>
+    <div class="wk" id="week"></div>
+  </section>
+</main>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+{
+const K='#3a2326';
+const sh='<ellipse cx="60" cy="112" rx="32" ry="5" fill="#000" opacity=".12"/>';
+const CH=[
+ {n:'삐약이',m:'행복해',s:sh+`<path d="M60 16c-4 6 3 9 0 14" stroke="#e0a800" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse cx="24" cy="76" rx="9" ry="15" fill="#f5c531" transform="rotate(25 24 76)"/><ellipse cx="96" cy="76" rx="9" ry="15" fill="#f5c531" transform="rotate(-25 96 76)"/><circle cx="60" cy="68" r="42" fill="#ffd84d"/><ellipse cx="54" cy="44" rx="20" ry="9" fill="#fff6c2" opacity=".8"/><path d="M42 64q5-7 10 0M68 64q5-7 10 0" stroke="${K}" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M54 72h12l-6 8z" fill="#ff8a3d"/><circle cx="38" cy="76" r="6" fill="#ff9aa8" opacity=".75"/><circle cx="82" cy="76" r="6" fill="#ff9aa8" opacity=".75"/>`},
+ {n:'콩떡이',m:'신나!',s:sh+`<circle cx="32" cy="34" r="12" fill="#e9a86a"/><circle cx="32" cy="34" r="6" fill="#ffc7b5"/><circle cx="88" cy="34" r="12" fill="#e9a86a"/><circle cx="88" cy="34" r="6" fill="#ffc7b5"/><ellipse cx="60" cy="70" rx="44" ry="40" fill="#f2b880"/><ellipse cx="56" cy="44" rx="20" ry="8" fill="#ffdcb8" opacity=".8"/><ellipse cx="60" cy="84" rx="26" ry="22" fill="#fff3e6"/><circle cx="44" cy="62" r="6" fill="${K}"/><circle cx="46" cy="60" r="2.2" fill="#fff"/><circle cx="76" cy="62" r="6" fill="${K}"/><circle cx="78" cy="60" r="2.2" fill="#fff"/><path d="M52 72q8 11 16 0z" fill="#d9534f"/><circle cx="31" cy="76" r="9" fill="#ffb0a0" opacity=".8"/><circle cx="89" cy="76" r="9" fill="#ffb0a0" opacity=".8"/><circle cx="48" cy="100" r="6" fill="#e9a86a"/><circle cx="72" cy="100" r="6" fill="#e9a86a"/><path d="M100 14l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="#ffc83d"/>`},
+ {n:'몽글이',m:'차분해',s:sh+`<g fill="#e3f0ff"><circle cx="36" cy="72" r="25"/><circle cx="60" cy="56" r="31"/><circle cx="86" cy="70" r="25"/><rect x="28" y="70" width="64" height="34" rx="16"/></g><ellipse cx="54" cy="40" rx="16" ry="7" fill="#fff"/><path d="M44 72q5 4 10 0M66 72q5 4 10 0" stroke="${K}" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M55 84q5 4 10 0" stroke="${K}" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="38" cy="82" r="6" fill="#ffc4d0" opacity=".8"/><circle cx="82" cy="82" r="6" fill="#ffc4d0" opacity=".8"/>`},
+ {n:'냥냥이',m:'졸려…',s:sh+`<path d="M28 50L34 18 56 38zM92 50L86 18 64 38z" fill="#b9b2c9"/><path d="M34 26l3 14 10-6zM86 26l-3 14-10-6z" fill="#ffc7d2"/><ellipse cx="60" cy="70" rx="43" ry="38" fill="#cfc8de"/><ellipse cx="56" cy="46" rx="18" ry="7" fill="#e6e1ef"/><path d="M60 36v10M52 38l2 8M68 38l-2 8" stroke="#a79fbd" stroke-width="3" stroke-linecap="round"/><path d="M41 68h13M66 68h13" stroke="${K}" stroke-width="3.5" stroke-linecap="round"/><path d="M53 78q3.5 4 7 0q3.5 4 7 0" stroke="${K}" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M20 72l14 2M20 80l14-1M100 72l-14 2M100 80l-14-1" stroke="#9a91b3" stroke-width="2" stroke-linecap="round"/><circle cx="40" cy="80" r="6" fill="#ffb3c4" opacity=".7"/><circle cx="80" cy="80" r="6" fill="#ffb3c4" opacity=".7"/><text x="96" y="24" font-family="Jua,sans-serif" font-size="20" fill="#8b7fb8">z</text><text x="108" y="12" font-family="Jua,sans-serif" font-size="13" fill="#8b7fb8">z</text>`},
+ {n:'펭펭이',m:'축 처져',s:sh+`<ellipse cx="22" cy="80" rx="9" ry="16" fill="#4f6fb0" transform="rotate(28 22 80)"/><ellipse cx="98" cy="80" rx="9" ry="16" fill="#4f6fb0" transform="rotate(-28 98 80)"/><ellipse cx="60" cy="68" rx="41" ry="42" fill="#5b7fc4"/><path d="M60 26c-2-7 3-11 7-9" stroke="#5b7fc4" stroke-width="5" fill="none" stroke-linecap="round"/><ellipse cx="50" cy="36" rx="14" ry="6" fill="#86a3dc"/><path d="M60 50c-8-13-31-11-31 10c0 23 14 38 31 38s31-15 31-38c0-21-23-23-31-10z" fill="#fff"/><ellipse cx="46" cy="66" rx="7" ry="8" fill="${K}"/><circle cx="48.5" cy="63" r="2.8" fill="#fff"/><circle cx="44" cy="69" r="1.2" fill="#fff"/><ellipse cx="74" cy="66" rx="7" ry="8" fill="${K}"/><circle cx="76.5" cy="63" r="2.8" fill="#fff"/><circle cx="72" cy="69" r="1.2" fill="#fff"/><ellipse cx="60" cy="77" rx="5" ry="3.5" fill="#ffb347"/><path d="M56 84q4-3 8 0" stroke="${K}" stroke-width="2.2" fill="none" stroke-linecap="round"/><ellipse cx="38" cy="78" rx="6" ry="4" fill="#ff9aa8" opacity=".75"/><ellipse cx="82" cy="78" rx="6" ry="4" fill="#ff9aa8" opacity=".75"/><path d="M93 44q4 7 0 9q-4-2 0-9z" fill="#9ad3ff"/><ellipse cx="48" cy="109" rx="9" ry="4" fill="#ffb347"/><ellipse cx="72" cy="109" rx="9" ry="4" fill="#ffb347"/>`}
+];
+const P=[[25,5],[50,10],[15,3]];
+const C=2*Math.PI*130;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ls={get(k,d){try{const v=localStorage.getItem('pomo_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('pomo_'+k,JSON.stringify(v))}catch(e){}}};
+const mi=v=>{v=Math.round(+v);return v>=0&&v<5?v:0};
+const svg=(i,cls)=>`<svg viewBox="0 0 120 120" aria-hidden="true"${cls?` class="${cls}"`:''}>${CH[mi(i)].s}</svg>`;
+const fmt=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+const hm=m=>m>=60?Math.floor(m/60)+'시간'+(m%60?' '+m%60+'분':''):m+'분';
+const day=t=>new Date(t).toDateString();
+const cleanLog=a=>Array.isArray(a)?a.filter(e=>e&&isFinite(e.t)&&isFinite(e.m)).map(e=>({t:+e.t,m:Math.min(180,Math.max(1,+e.m)),c:mi(e.c)})):[];
+
+const S={mood:mi(ls.get('mood',0)),preset:Math.min(2,Math.max(0,+ls.get('preset',0)||0)),mode:'focus',running:false,end:0,left:0};
+S.left=P[S.preset][0]*60000;
+let me={mood:S.mood,status:{s:'idle',end:0,at:Date.now()},log:cleanLog(ls.get('log',[]))};
+let db=null,user=null,uid=null,ref=null,others={},names={},asked=new Set(),loaded=false,shared=false,pending=[],chain=Promise.resolve(),actx=null;
+
+const dur=m=>P[S.preset][m==='focus'?0:1]*60000;
+function note(t){$('net').textContent=t}
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.remove('on'),3200)}
+
+function save(){
+  if(!shared){ls.set('log',me.log);return}
+  chain=chain.then(()=>shared?ref.set(JSON.parse(JSON.stringify(me))):ls.set('log',me.log)).catch(e=>{
+    if(e&&e.code==='invalid_argument'){shared=false;ls.set('log',me.log);note('이 페이지에서 기록을 저장할 권한이 없어 이 기기에만 저장돼요. 공유한 사람에게 편집 권한을 요청해 주세요.')}
+    else if(e&&e.code==='quota_exceeded'){toast('저장 공간이 가득 찼어요')}
+  });
+}
+function setStatus(s){me.status={s,end:S.running?S.end:0,at:Date.now()};me.mood=S.mood;save()}
+
+function ensureAudio(){try{if(!actx){const A=window.AudioContext||window.webkitAudioContext;if(A)actx=new A()}if(actx&&actx.state==='suspended')actx.resume()}catch(e){}}
+function chime(){try{if(!actx)return;const t=actx.currentTime;[784,988,1175].forEach((f,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t+i*.18);g.gain.linearRampToValueAtTime(.18,t+i*.18+.02);g.gain.exponentialRampToValueAtTime(.001,t+i*.18+.5);o.connect(g).connect(actx.destination);o.start(t+i*.18);o.stop(t+i*.18+.55)})}catch(e){}}
+
+function start(){ensureAudio();S.end=Date.now()+S.left;S.running=true;setStatus(S.mode);paint()}
+function pause(){S.left=Math.max(0,S.end-Date.now());S.running=false;setStatus('paused');paint()}
+function reset(){S.running=false;S.left=dur(S.mode);setStatus('idle');paint()}
+function setMode(m){if(S.mode===m&&!S.running)return;S.mode=m;reset()}
+function finish(){
+  S.running=false;chime();
+  if(S.mode==='focus'){
+    const e={t:Date.now(),m:P[S.preset][0],c:S.mood};
+    me.log.push(e);if(me.log.length>600)me.log=me.log.slice(-600);if(!loaded)pending.push(e);
+    S.mode='break';toast('토마토 하나 완성! 잠깐 쉬어 가요');
+  }else{S.mode='focus';toast('휴식 끝! 다시 집중해 볼까요?')}
+  S.left=dur(S.mode);setStatus('idle');paint();renderAll();
+}
+
+function paint(){
+  const total=dur(S.mode),left=S.running?Math.max(0,S.end-Date.now()):S.left;
+  $('time').textContent=fmt(left);
+  $('prog').style.strokeDasharray=C;$('prog').style.strokeDashoffset=C*(1-left/total);
+  $('timerCard').classList.toggle('brk',S.mode==='break');
+  $('mFocus').setAttribute('aria-pressed',S.mode==='focus');$('mBreak').setAttribute('aria-pressed',S.mode==='break');
+  $('go').textContent=S.running?'잠깐 멈춤':(left<total?'계속하기':'시작');
+  const c=CH[S.mood];
+  $('phase').textContent=S.running?(S.mode==='focus'?`${c.n}랑 집중하는 중`:`${c.n}랑 쉬는 중`):(left<total?'멈춰 있어요':(S.mode==='focus'?'준비됐으면 시작을 눌러요':'쉬는 시간이에요. 기지개 한 번!'));
+  document.title=S.running?fmt(left)+' · 같이 뽀모':'같이 뽀모';
+  document.querySelectorAll('[data-p]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.p===S.preset));
+  document.querySelectorAll('.mood').forEach((b,i)=>b.setAttribute('aria-pressed',i===S.mood));
+}
+function paintHero(){$('hero').innerHTML=`<g class="${S.running?'bob':''}">${CH[S.mood].s}</g>`}
+
+function people(){
+  const list=[{id:uid||'me',d:me,mine:true}];
+  for(const [id,d] of Object.entries(others))if(id!==uid&&d)list.push({id,d,mine:false});
+  return list;
+}
+const nameOf=p=>p.mine?'나':(names[p.id]||'친구');
+const todayLog=d=>{const k=day(Date.now());return cleanLog(d.log).filter(e=>day(e.t)===k)};
+
+function renderFriends(){
+  const now=Date.now();
+  $('friends').innerHTML=people().map(p=>{
+    const d=p.d,st=d.status||{},mood=mi(d.mood),tc=todayLog(d).length;let txt,live=false;
+    const end=+st.end||0;
+    if(st.s==='focus'&&end>now){txt='집중 중 · '+fmt(end-now)+' 남음';live=true}
+    else if(st.s==='break'&&end>now)txt='쉬는 중 · '+fmt(end-now)+' 남음';
+    else if(st.s==='paused')txt='잠깐 멈춤';
+    else txt=tc?'대기 중':'아직 시작 전';
+    const dots=tc?Array.from({length:Math.min(tc,8)},()=>'<svg aria-hidden="true"><use href="#tom"/></svg>').join('')+(tc>8?`+${tc-8}`:''):'';
+    return `<li class="fr${live?' live':''}"><span class="av">${svg(mood)}</span><div class="who"><b>${esc(nameOf(p))}</b><small>${CH[mood].n} · ${CH[mood].m}</small><span class="st">${txt}</span></div><span class="cnt" aria-label="오늘 토마토 ${tc}개">${dots}</span></li>`;
+  }).join('')+(Object.keys(others).filter(i=>i!==uid).length?'':'<li class="empty">아직 함께하는 친구가 없어요. 이 페이지를 친구에게 공유하면 여기에 나타나요.</li>');
+}
+function renderToday(){
+  const rows=[];
+  for(const p of people())for(const e of todayLog(p.d))rows.push({e,p});
+  rows.sort((a,b)=>b.e.t-a.e.t);
+  $('today').innerHTML=rows.length?rows.slice(0,30).map(({e,p})=>{const d=new Date(e.t);return `<li><time>${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}</time>${svg(e.c)}<span>${esc(nameOf(p))} · ${CH[e.c].m}</span><em>${e.m}분 집중</em></li>`}).join(''):'<li class="empty">아직 오늘 완성한 토마토가 없어요. 첫 토마토를 시작해 볼까요?</li>';
+}
+function renderWeek(){
+  const days=[];const base=new Date();base.setHours(0,0,0,0);
+  for(let i=6;i>=0;i--){const d=new Date(base);d.setDate(base.getDate()-i);days.push(d)}
+  const W='일월화수목금토';
+  const ppl=people().map(p=>{const lg=cleanLog(p.d.log);const per=days.map(d=>{const k=d.toDateString();const es=lg.filter(e=>day(e.t)===k);return{n:es.length,m:es.reduce((a,e)=>a+e.m,0)}});return{p,per,tot:per.reduce((a,x)=>a+x.m,0),cnt:per.reduce((a,x)=>a+x.n,0)}});
+  const max=Math.max(25,...ppl.flatMap(x=>x.per.map(v=>v.m)));
+  let h='<div></div>'+days.map((d,i)=>`<div class="h${i===6?' today':''}">${W[d.getDay()]}<br>${d.getMonth()+1}/${d.getDate()}</div>`).join('')+'<div class="h hd-tot">합계</div>';
+  h+=ppl.map(x=>`<div class="nm">${svg(x.p.d.mood)}<span>${esc(nameOf(x.p))}</span></div>`+x.per.map(v=>`<div class="cell" title="${v.n}개 · ${hm(v.m)}"><i style="height:${v.m/max*100}%"></i><span>${v.n||''}</span></div>`).join('')+`<div class="tot"><b>${x.cnt}개</b>${hm(x.tot)}</div>`).join('');
+  $('week').innerHTML=h;
+}
+function renderAll(){renderFriends();renderToday();renderWeek()}
+
+$('moods').innerHTML=CH.map((c,i)=>`<button class="mood" data-m="${i}" aria-pressed="false">${svg(i)}<b>${c.n}</b><small>${c.m}</small></button>`).join('');
+$('moods').addEventListener('click',ev=>{const b=ev.target.closest('.mood');if(!b)return;S.mood=+b.dataset.m;ls.set('mood',S.mood);me.mood=S.mood;save();paint();paintHero();renderAll();toast(`오늘은 ${CH[S.mood].n}랑 함께해요`)});
+$('go').addEventListener('click',()=>{S.running?pause():start();paintHero()});
+$('reset').addEventListener('click',()=>{reset();paintHero()});
+$('skip').addEventListener('click',()=>{S.mode=S.mode==='focus'?'break':'focus';reset();paintHero()});
+$('mFocus').addEventListener('click',()=>{setMode('focus');paintHero()});
+$('mBreak').addEventListener('click',()=>{setMode('break');paintHero()});
+document.querySelectorAll('[data-p]').forEach(b=>b.addEventListener('click',()=>{S.preset=+b.dataset.p;ls.set('preset',S.preset);if(S.running){paint();toast('다음 타이머부터 적용돼요');return}reset();paintHero()}));
+
+let ticks=0;
+setInterval(()=>{if(S.running&&S.end-Date.now()<=0){finish();paintHero();return}if(S.running)paint();if(++ticks%4===0)renderFriends()},250);
+paint();paintHero();renderAll();
+
+(async()=>{
+  const cl=window.claude;
+  if(!cl||!cl.use){note('기록 공유에 연결되지 않아 이 기기에서만 기록돼요.');return}
+  try{[db,user]=await Promise.all([cl.use('db'),cl.use('user')]);uid=user?await user.id():null}catch(e){db=null}
+  if(!db||!uid){note('기록 공유에 연결되지 않아 이 기기에서만 기록돼요. 로그인하면 친구와 함께 볼 수 있어요.');return}
+  ref=db.doc('study/'+uid);
+  let resolveLoad;chain=new Promise(r=>resolveLoad=r);shared=true;
+  const timer=setTimeout(()=>{if(!loaded)note('기록을 불러오는 중이에요. 연결이 느려요…')},10000);
+  db.collection('study').onSnapshot(snap=>{
+    const o={};snap.docs.forEach(x=>{if(x.exists)o[x.id]=x.data()});others=o;
+    if(!loaded&&!snap.metadata.fromCache){
+      loaded=true;clearTimeout(timer);note('');
+      const d=o[uid];
+      if(d)me={mood:S.mood,status:me.status,log:[...cleanLog(d.log),...pending]};
+      else me={mood:S.mood,status:me.status,log:[...pending]};
+      const needWrite=pending.length>0||S.running||!d;pending=[];resolveLoad();
+      if(needWrite)save();
+    }
+    const ids=Object.keys(o).filter(i=>i!==uid&&!asked.has(i));
+    if(ids.length&&user&&user.profiles){ids.forEach(i=>asked.add(i));user.profiles(ids).then(ps=>{ids.forEach(i=>names[i]=(ps&&ps[i]&&ps[i].name)||'');renderAll()}).catch(()=>{})}
+    renderAll();
+  },e=>{clearTimeout(timer);shared=false;resolveLoad();note('친구 기록을 불러오지 못했어요. 지금은 이 기기에서만 기록돼요.')});
+})();
+}
+</script>
+</body>
+</html>
